@@ -1,11 +1,15 @@
-function newState = UpdateState(currentState, weights)
+function newState = UpdateState(currentState, weights, noiseParameter)
 
-    newState = zeros(size(currentState));
-    for i = 1:numel(currentState)
-        newState(i) = sign(sum(weights(i,:).*currentState));
-        if newState(i) == 0
-            newState(i) = 1;
-        end
+    newState = currentState;
+    nNeurons = size(currentState, 2);    
+    iRandom = 1 + fix(rand*nNeurons);
+    
+    localField = sum(weights(iRandom,:).*currentState);
+    g = 1/(1+e^(-2*noiseParameter*localField));
+    if rand <= g
+        newState(iRandom) = 1;
+    else
+        newState(iRandom) = -1;
     end
-
+    
 end
