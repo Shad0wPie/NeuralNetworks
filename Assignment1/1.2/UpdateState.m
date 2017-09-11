@@ -5,7 +5,7 @@ function newState = UpdateState(currentState, weights, noiseParameter)
     iRandom = 1 + fix(rand*nNeurons);
     
     localField = sum(weights(iRandom,:).*currentState);
-    g = 1/(1+e^(-2*noiseParameter*localField));
+    g = 1/(1+exp((-2*noiseParameter*localField)));
     if rand <= g
         newState(iRandom) = 1;
     else

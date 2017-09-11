@@ -4,7 +4,7 @@ function [ orderParameter ] = CalculateOrderParameter( currentState, initialStat
     orderParameter = 0;
     
     for i=1:N
-        orderParameter = orderparameter + currentState(i)*initialState(i);
+        orderParameter = orderParameter + currentState(i)*initialState(i);
     end
     
     orderParameter = orderParameter/N;

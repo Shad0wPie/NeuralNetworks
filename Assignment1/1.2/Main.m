@@ -3,7 +3,7 @@ nNeurons = 200;
 nPatterns = 5;
 noiseParameter = 2;
 iterations = 20;
-timePerIteration = 10^3;
+timePerIteration = 10^7;
 
 hold on
 timeSeries = 1:timePerIteration;
