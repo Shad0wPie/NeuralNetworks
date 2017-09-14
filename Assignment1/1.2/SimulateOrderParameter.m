@@ -13,7 +13,7 @@ function orderParameterValues = SimulateOrderParameter(nPatterns, nNeurons, nois
     
     orderParameterValues = zeros(timeToRun,1);
     t = 1;
-    while t <= timeToRun    
+    while t <= timeToRun
         currentState = UpdateState(currentState, weights, noiseParameter);
         orderParameterValues(t) = CalculateOrderParameter(currentState, initialState);
         t = t + 1;
