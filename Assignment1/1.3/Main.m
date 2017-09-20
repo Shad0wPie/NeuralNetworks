@@ -27,7 +27,9 @@ weights = InitializeWeights(weightsInitializingInterval, size(weights));
 biases = InitializeBiases(biasInitializingInterval, nbrOfOutputNeurons);
 
 hold on
-for i=1:nbrOfIterations
+outputActivate=0;
+
+for iIterations=1:nbrOfIterations
     
     %pick random input from training set
     iRandomInput = randi(size(trainingSet,2));
@@ -35,15 +37,27 @@ for i=1:nbrOfIterations
     
     %calculate output
     output = weights*input - biases;
-    output = ActivationFunction(output,beta);
+    outputActivate = ActivationFunction(outputActivate,beta);
     
     %calculate energy
-    energy = CalculateEnergy(outputSet(iRandomInput), output);
+    eta = outputSet(iRandomInput);
+    energy = CalculateEnergy(eta, outputActivate);
     
     %plot
-    %plot(i,energy,'.')
+    
+    plot(iIterations,energy,'.')
     
     %update weights
+    for i=1:size(weights,1)
+        for j=1:size(weights,2)
+            weights(i,j) = weights(i,j) + learningRate*(eta - outputActivate)*(1-outputActivate^2)*input(j);
+        end
+    end
+    
+    %update biases
+    for i=1:size(weights,1)
+            biases = biases - learningRate*(eta - outputActivate);
+    end
     
     
 end
