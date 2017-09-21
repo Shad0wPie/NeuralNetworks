@@ -4,7 +4,7 @@ learningRate = 0.02;
 beta = 1/2;
 weightsInitializingInterval = [-2 2];
 biasInitializingInterval = [-1 1];
-nbrOfIterations = 10^5;
+nbrOfIterations = 10^6;
 
 % import raw data
 trainingData = importdata('training_data.txt');
@@ -73,9 +73,9 @@ for iNumberOfRuns = 1:numberOfRuns
     validationClassificationErrorOverRuns(iNumberOfRuns) = validationClassificationError;
     
     hold on
-    iterations = 1:nbrOfIterations;
-    plot(iterations, trainingEnergies);
-    plot(iterations, validationEnergies);
+    iterations = 1:10^3:nbrOfIterations;
+    plot(iterations, trainingEnergies(1:10^3:end));
+    plot(iterations, validationEnergies(1:10^3:end));
     toc
     
 end %loop over runs
