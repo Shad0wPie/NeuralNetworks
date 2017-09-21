@@ -10,11 +10,17 @@ nbrOfIterations = 10^5;
 trainingData = importdata('training_data.txt');
 validationData = importdata('validation_data.txt');
 
-% process imported data
-trainingData = NormalizeData(trainingData, [1,2]);
+nTrainingPatterns = size(trainingData,1);
+
+% combine data, normalize, and then split apart again
+combinedData = [trainingData;validationData];
+combinedNormalizedData = NormalizeData(combinedData, [1,2]);
+
+trainingData = combinedNormalizedData(1:nTrainingPatterns,:);
 trainingInputs = trainingData(:,[1 2]);
 trainingOutputs = trainingData(:,3);
-validationData = NormalizeData(validationData, [1,2]);
+
+validationData = combinedNormalizedData(nTrainingPatterns+1:end,:);
 validationInputs = validationData(:,[1 2]);
 validationOutputs = validationData(:,3);
 
