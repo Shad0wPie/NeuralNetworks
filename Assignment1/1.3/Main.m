@@ -27,7 +27,8 @@ biasInitializingInterval = [-1 1];
 input = zeros(nbrOfInputNeurons,1);
 output=0;
 
-nbrOfIterations = 10^3;
+nbrOfIterations = 10^6;
+energyVec = zeros(nbrOfIterations,1);
 
 %initialize weights
 weights = InitializeWeights(weightsInitializingInterval, size(weights));
@@ -36,7 +37,6 @@ weights = InitializeWeights(weightsInitializingInterval, size(weights));
 biases = InitializeBiases(biasInitializingInterval, nbrOfOutputNeurons);
 
 hold on
-outputActivate=0;
 
 for iIterations=1:nbrOfIterations
     
@@ -47,30 +47,36 @@ for iIterations=1:nbrOfIterations
     
     %go through network
     output = weights*input - biases;
-    outputActivate = ActivationFunction(output,beta);
+    ActivatedOutput = ActivationFunction(output,beta);
     
     %update weights
     deltaWeight = zeros(1,2);
     for j=1:size(weights,2)
-        deltaWeight(1,j) = learningRate*beta*(zeta - outputActivate)*(1-outputActivate^2)*input(j,1);
+        deltaWeight(1,j) = learningRate*beta*(zeta - ActivatedOutput)*(1-ActivatedOutput^2)*input(j,1);
         weights(1,j) = weights(1,j) + deltaWeight(1,j);
     end
     
     %update biases
     for i=1:nbrOfOutputNeurons
-        deltaBiases = learningRate*beta*(zeta-outputActivate)*(1-outputActivate^2);
-        biases = biases + deltaBiases;
+        deltaBiases = learningRate*beta*(zeta-ActivatedOutput)*(1-ActivatedOutput^2);
+        biases = biases - deltaBiases;
     end
     
     
     energy = 0;
     for i=1:size(trainingData,1)
-        output = weights*(trainingSet(i,:))' - biases;
-        outputActivate = ActivationFunction(output,beta);
-        energy = energy + CalculateEnergy(zeta, outputActivate);
+        input = trainingSet(i,:);
+        zeta = outputSet(i);
+        output = weights*input' - biases;
+        ActivatedOutput = ActivationFunction(output,beta);
+        energy = energy + CalculateEnergy(zeta, ActivatedOutput);
     end
     
-    plot(iIterations,energy,'.')
-    
+    energyVec(iIterations) = energy;
     
 end
+
+plot(1:nbrOfIterations, energyVec);
+ 
+ 
+ 
