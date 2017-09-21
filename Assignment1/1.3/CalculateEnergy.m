@@ -1,4 +1,4 @@
-function [ energy ] = EnergyFunction( zeta, output )
+function [ energy ] = CalculateEnergy( zeta, output )
 %CalculateEnergy: calculates the error of the output(output) compared to the
 %target(zeta)
     energy = 0;
