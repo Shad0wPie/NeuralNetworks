@@ -5,10 +5,10 @@ trainingData = importdata('training_data.txt');
 %toatlData =
 
 %normalize data
-n1trainingData(:,1) = trainingData(:,1)/norm(trainingData(:,1));
-n2trainingData(:,1) = trainingData(:,2)/norm(trainingData(:,2));
-trainingData = [n1trainingData n2trainingData trainingData(:,3)];
-
+trainingData(:,1) = trainingData(:,1) - mean(trainingData(:,1));
+trainingData(:,1) = trainingData(:,1)/std(trainingData(:,1));
+trainingData(:,2) = trainingData(:,2) - mean(trainingData(:,2));
+trainingData(:,2) = trainingData(:,2)/std(trainingData(:,2));
 
 trainingSet = trainingData(:,[1 2]);
 outputSet = trainingData(:,3);
@@ -27,7 +27,7 @@ biasInitializingInterval = [-1 1];
 input = zeros(nbrOfInputNeurons,1);
 output=0;
 
-nbrOfIterations = 10^6;
+nbrOfIterations = 10^4;
 energyVec = zeros(nbrOfIterations,1);
 
 %initialize weights
