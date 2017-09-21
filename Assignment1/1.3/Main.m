@@ -1,6 +1,15 @@
 clear all;
 
 trainingData = importdata('training_data.txt');
+%validationData =
+%toatlData =
+
+%normalize data
+n1trainingData(:,1) = trainingData(:,1)/norm(trainingData(:,1));
+n2trainingData(:,1) = trainingData(:,2)/norm(trainingData(:,2));
+trainingData = [n1trainingData n2trainingData trainingData(:,3)];
+
+
 trainingSet = trainingData(:,[1 2]);
 outputSet = trainingData(:,3);
 
@@ -32,32 +41,36 @@ outputActivate=0;
 for iIterations=1:nbrOfIterations
     
     %pick random input from training set
-    iRandomInput = randi(size(trainingSet,2));
+    iRandomInput = randi(size(trainingSet,1));
     input = trainingSet(iRandomInput,:)'; %column vector
+    zeta = outputSet(iRandomInput);
     
-    %calculate output
+    %go through network
     output = weights*input - biases;
-    outputActivate = ActivationFunction(outputActivate,beta);
-    
-    %calculate energy
-    eta = outputSet(iRandomInput);
-    energy = CalculateEnergy(eta, outputActivate);
-    
-    %plot
-    
-    plot(iIterations,energy,'.')
+    outputActivate = ActivationFunction(output,beta);
     
     %update weights
-    for i=1:size(weights,1)
-        for j=1:size(weights,2)
-            weights(i,j) = weights(i,j) + learningRate*(eta - outputActivate)*(1-outputActivate^2)*input(j);
-        end
+    deltaWeight = zeros(1,2);
+    for j=1:size(weights,2)
+        deltaWeight(1,j) = learningRate*beta*(zeta - outputActivate)*(1-outputActivate^2)*input(j,1);
+        weights(1,j) = weights(1,j) + deltaWeight(1,j);
     end
     
     %update biases
-    for i=1:size(weights,1)
-            biases = biases - learningRate*(eta - outputActivate);
+    for i=1:nbrOfOutputNeurons
+        deltaBiases = learningRate*beta*(zeta-outputActivate)*(1-outputActivate^2);
+        biases = biases + deltaBiases;
     end
+    
+    
+    energy = 0;
+    for i=1:size(trainingData,1)
+        output = weights*(trainingSet(i,:))' - biases;
+        outputActivate = ActivationFunction(output,beta);
+        energy = energy + CalculateEnergy(zeta, outputActivate);
+    end
+    
+    plot(iIterations,energy,'.')
     
     
 end
