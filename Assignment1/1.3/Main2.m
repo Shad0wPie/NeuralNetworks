@@ -27,40 +27,65 @@ validationOutputs = validationData(:,3);
 nbrOfInputNeurons = size(trainingInputs,2);
 nbrOfOutputNeurons = size(trainingOutputs,2);
 
-%initialize weights
-weights = InitializeWeights(weightsInitializingInterval, [nbrOfOutputNeurons,nbrOfInputNeurons]);
+numberOfRuns = 10;
 
-%initialize biases
-biases = InitializeBiases(biasInitializingInterval, nbrOfOutputNeurons);
+trainingClassificationErrorOverRuns = zeros(numberOfRuns,1);
+validationClassificationErrorOverRuns = zeros(numberOfRuns,1);
 
-trainingEnergies = zeros(nbrOfIterations,1);
-validationEnergies = zeros(nbrOfIterations,1);
-for iIterations=1:nbrOfIterations
+for iNumberOfRuns = 1:numberOfRuns
     
-    %pick random input from training set
-    iRandomInput = randi(size(trainingInputs,1));
-    input = trainingInputs(iRandomInput,:)'; %column vector
-    zeta = trainingOutputs(iRandomInput);
+    %initialize weights
+    weights = InitializeWeights(weightsInitializingInterval, [nbrOfOutputNeurons,nbrOfInputNeurons]);
     
-    %go through network
-    output = weights*input - biases;
-    ActivatedOutput = ActivationFunction(output,beta);
+    %initialize biases
+    biases = InitializeBiases(biasInitializingInterval, nbrOfOutputNeurons);
     
-    %update weights
-    deltaWeight = learningRate*beta*(zeta - ActivatedOutput)*(1-ActivatedOutput^2)*input';
-    weights = weights + deltaWeight;
+    trainingEnergies = zeros(nbrOfIterations,1);
+    validationEnergies = zeros(nbrOfIterations,1);
+    for iIterations=1:nbrOfIterations
+        
+        %pick random input from training set
+        iRandomInput = randi(size(trainingInputs,1));
+        input = trainingInputs(iRandomInput,:)'; %column vector
+        zeta = trainingOutputs(iRandomInput);
+        
+        %go through network
+        output = weights*input - biases;
+        ActivatedOutput = ActivationFunction(output,beta);
+        
+        %update weights
+        deltaWeight = learningRate*beta*(zeta - ActivatedOutput)*(1-ActivatedOutput^2)*input';
+        weights = weights + deltaWeight;
+        
+        %update biases
+        deltaBiases = learningRate*beta*(zeta-ActivatedOutput)*(1-ActivatedOutput^2);
+        biases = biases - deltaBiases;
+        
+        trainingEnergy = EnergyOfAllPatterns(trainingInputs, trainingOutputs, weights, biases, beta);
+        validationEnergy = EnergyOfAllPatterns(validationInputs, validationOutputs, weights, biases, beta);
+        trainingClassificationError = CalculateClassificationError(trainingInputs, trainingOutputs, weights, biases, beta);
+        validationClassificationError = CalculateClassificationError(validationInputs, validationOutputs, weights, biases, beta);
+        trainingEnergies(iIterations) = trainingEnergy;
+        validationEnergies(iIterations) = validationEnergy;
+    end %loop over iteraions
     
-    %update biases
-    deltaBiases = learningRate*beta*(zeta-ActivatedOutput)*(1-ActivatedOutput^2);
-    biases = biases - deltaBiases;
+    trainingClassificationErrorOverRuns(iNumberOfRuns) = trainingClassificationError;
+    validationClassificationErrorOverRuns(iNumberOfRuns) = validationClassificationError;
     
-    trainingEnergy = EnergyOfAllPatterns(trainingInputs, trainingOutputs, weights, biases, beta);
-    validationEnergy = EnergyOfAllPatterns(validationInputs, validationOutputs, weights, biases, beta);
-    trainingEnergies(iIterations) = trainingEnergy;
-    validationEnergies(iIterations) = validationEnergy;
-end
-hold on
-iterations = 1:nbrOfIterations;
-plot(iterations, trainingEnergies);
-plot(iterations, validationEnergies);
-toc
+    hold on
+    iterations = 1:nbrOfIterations;
+    plot(iterations, trainingEnergies);
+    plot(iterations, validationEnergies);
+    toc
+    
+end %loop over runs
+
+minTrainingClassificationError = min(trainingClassificationErrorOverRuns)
+minValidationClassificationError = min(validationClassificationErrorOverRuns)
+
+avgTrainingClassificationError = mean(trainingClassificationErrorOverRuns)
+avgValidationClassificationError = mean(validationClassificationErrorOverRuns)
+
+varTrainingClassificationError = var(trainingClassificationErrorOverRuns)
+varValidationClassificationError = var(validationClassificationErrorOverRuns)
+
