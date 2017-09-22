@@ -7,7 +7,7 @@ beta = 1/2;
 weightsInitializingInterval = [-2 2];
 biasInitializingInterval = [-1 1];
 nIterations = 10^6;
-nRuns = 3;
+nRuns = 10;
 nHiddenNeurons = 4;
 
 % import raw data
@@ -36,7 +36,7 @@ validationClassificationErrorOverRuns = zeros(nRuns,1);
 
 hold on
 
-for iNumberOfRuns = 1:nRuns
+for iRun = 1:nRuns
         
     %initialize weights
     weights = InitializeWeights(weightsInitializingInterval, nInputNeurons, nHiddenNeurons, nOutputNeurons);
@@ -59,14 +59,17 @@ for iNumberOfRuns = 1:nRuns
     trainingClassificationError = CalculateClassificationError(trainingInputs, trainingOutputs, weights, biases, beta);
     validationClassificationError = CalculateClassificationError(validationInputs, validationOutputs, weights, biases, beta);
 
-    trainingClassificationErrorOverRuns(iNumberOfRuns) = trainingClassificationError;
-    validationClassificationErrorOverRuns(iNumberOfRuns) = validationClassificationError;
+    trainingClassificationErrorOverRuns(iRun) = trainingClassificationError;
+    validationClassificationErrorOverRuns(iRun) = validationClassificationError;
     
-    iterations = 1:10^3:nbrOfIterations;
-    plot(iterations, trainingEnergies(1:10^3:end));
-    plot(iterations, validationEnergies(1:10^3:end));
+    iterations = 1:10^3:nIterations;
+    plot(iterations, trainingEnergies(1:10^3:end), 'r');
+    plot(iterations, validationEnergies(1:10^3:end), 'b');
     
+    fprintf("Finished run: %d\n", iRun);
 end %loop over runs
+
+legend('Training Energy', 'Validation Energy')
 
 minTrainingClassificationError = min(trainingClassificationErrorOverRuns)
 minValidationClassificationError = min(validationClassificationErrorOverRuns)
