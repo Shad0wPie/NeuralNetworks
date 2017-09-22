@@ -2,9 +2,8 @@ function [ totalEnergy ] = EnergyOfAllPatterns( patternInputs, patternOutputs, w
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
     
-    outputs = patternInputs * weights' - biases;
-    activatedOutputs = ActivationFunction(outputs, beta);
-    totalEnergy = CalculateEnergy(patternOutputs, activatedOutputs);
+    networkOutputs = EvaluateNetwork(patternInputs, weights, biases, beta);
+    totalEnergy = CalculateEnergy(patternOutputs, networkOutputs);
 
 end
 

@@ -1,82 +1,80 @@
-clear all;
+clearvars; close all
+tic
 
-trainingData = importdata('training_data.txt');
-%validationData =
-%toatlData =
-
-%normalize data
-trainingData(:,1) = trainingData(:,1) - mean(trainingData(:,1));
-trainingData(:,1) = trainingData(:,1)/std(trainingData(:,1));
-trainingData(:,2) = trainingData(:,2) - mean(trainingData(:,2));
-trainingData(:,2) = trainingData(:,2)/std(trainingData(:,2));
-
-trainingSet = trainingData(:,[1 2]);
-outputSet = trainingData(:,3);
-
-nbrOfInputNeurons = size(trainingSet,2);
-nbrOfOutputNeurons = size(outputSet,2);
-weights = zeros(nbrOfOutputNeurons,nbrOfInputNeurons);
-biases = zeros(nbrOfOutputNeurons,1);
-energy = 0;
-
+% settings
 learningRate = 0.02;
 beta = 1/2;
-
 weightsInitializingInterval = [-2 2];
 biasInitializingInterval = [-1 1];
-input = zeros(nbrOfInputNeurons,1);
-output=0;
+nIterations = 10^5;
+nRuns = 3;
+nHiddenNeurons = 4;
 
-nbrOfIterations = 10^4;
-energyVec = zeros(nbrOfIterations,1);
+% import raw data
+trainingData = importdata('training_data.txt');
+validationData = importdata('validation_data.txt');
 
-%initialize weights
-weights = InitializeWeights(weightsInitializingInterval, size(weights));
+nTrainingPatterns = size(trainingData,1);
 
-%initialize biases
-biases = InitializeBiases(biasInitializingInterval, nbrOfOutputNeurons);
+% combine data, normalize, and then split apart again
+combinedData = [trainingData;validationData];
+combinedNormalizedData = NormalizeData(combinedData, [1,2]);
+
+trainingData = combinedNormalizedData(1:nTrainingPatterns,:);
+trainingInputs = trainingData(:,[1 2]);
+trainingOutputs = trainingData(:,3);
+
+validationData = combinedNormalizedData(nTrainingPatterns+1:end,:);
+validationInputs = validationData(:,[1 2]);
+validationOutputs = validationData(:,3);
+
+nInputNeurons = size(trainingInputs,2);
+nOutputNeurons = size(trainingOutputs,2);
+
+trainingClassificationErrorOverRuns = zeros(nRuns,1);
+validationClassificationErrorOverRuns = zeros(nRuns,1);
 
 hold on
 
-for iIterations=1:nbrOfIterations
+for iNumberOfRuns = 1:nRuns
+        
+    %initialize weights
+    weights = InitializeWeights(weightsInitializingInterval, nInputNeurons, nHiddenNeurons, nOutputNeurons);
     
-    %pick random input from training set
-    iRandomInput = randi(size(trainingSet,1));
-    input = trainingSet(iRandomInput,:)'; %column vector
-    zeta = outputSet(iRandomInput);
+    %initialize biases
+    biases = InitializeBiases(biasInitializingInterval, nHiddenNeurons,nOutputNeurons);
     
-    %go through network
-    output = weights*input - biases;
-    ActivatedOutput = ActivationFunction(output,beta);
+    trainingEnergies = zeros(nIterations,1);
+    validationEnergies = zeros(nIterations,1);
+    for iIterations=1:nIterations
+        
+        [weights, biases] = StochasticTrainingStep(weights, biases, trainingInputs, trainingOutputs, beta, learningRate);
+        
+        trainingEnergy = EnergyOfAllPatterns(trainingInputs, trainingOutputs, weights, biases, beta);
+        validationEnergy = EnergyOfAllPatterns(validationInputs, validationOutputs, weights, biases, beta);
+        trainingEnergies(iIterations) = trainingEnergy;
+        validationEnergies(iIterations) = validationEnergy;
+    end %loop over iteraions
     
-    %update weights
-    deltaWeight = zeros(1,2);
-    for j=1:size(weights,2)
-        deltaWeight(1,j) = learningRate*beta*(zeta - ActivatedOutput)*(1-ActivatedOutput^2)*input(j,1);
-        weights(1,j) = weights(1,j) + deltaWeight(1,j);
-    end
-    
-    %update biases
-    for i=1:nbrOfOutputNeurons
-        deltaBiases = learningRate*beta*(zeta-ActivatedOutput)*(1-ActivatedOutput^2);
-        biases = biases - deltaBiases;
-    end
-    
-    
-    energy = 0;
-    for i=1:size(trainingData,1)
-        input = trainingSet(i,:);
-        zeta = outputSet(i);
-        output = weights*input' - biases;
-        ActivatedOutput = ActivationFunction(output,beta);
-        energy = energy + CalculateEnergy(zeta, ActivatedOutput);
-    end
-    
-    energyVec(iIterations) = energy;
-    
-end
+    trainingClassificationError = CalculateClassificationError(trainingInputs, trainingOutputs, weights, biases, beta);
+    validationClassificationError = CalculateClassificationError(validationInputs, validationOutputs, weights, biases, beta);
 
-plot(1:nbrOfIterations, energyVec);
- 
- 
- 
+    trainingClassificationErrorOverRuns(iNumberOfRuns) = trainingClassificationError;
+    validationClassificationErrorOverRuns(iNumberOfRuns) = validationClassificationError;
+    
+    iterations = 1:nIterations;
+    plot(iterations, trainingEnergies, '-');
+    plot(iterations, validationEnergies);
+    
+end %loop over runs
+
+minTrainingClassificationError = min(trainingClassificationErrorOverRuns)
+minValidationClassificationError = min(validationClassificationErrorOverRuns)
+
+avgTrainingClassificationError = mean(trainingClassificationErrorOverRuns)
+avgValidationClassificationError = mean(validationClassificationErrorOverRuns)
+
+varTrainingClassificationError = var(trainingClassificationErrorOverRuns)
+varValidationClassificationError = var(validationClassificationErrorOverRuns)
+
+toc
