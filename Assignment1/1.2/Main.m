@@ -7,14 +7,12 @@ timePerIteration = 10^6;
 nbrOfDataPoints = 200;
 smoothedTimeStep = timePerIteration/nbrOfDataPoints;
 
-
 hold on
 
 timeSeries = 1:smoothedTimeStep:timePerIteration;
 for i = 1:iterations
     orderParameterSeries = SimulateOrderParameter(nPatterns, nNeurons, noiseParameter, timePerIteration);
     cumOrderParameterSeries = CalculateCumOrderParameter(orderParameterSeries, timePerIteration, nbrOfDataPoints);
-    %smoothedSeries = SmoothResults(cumOrderParameterSeries, smoothedTimeStep);
     
     plot(timeSeries', cumOrderParameterSeries)   
     drawnow

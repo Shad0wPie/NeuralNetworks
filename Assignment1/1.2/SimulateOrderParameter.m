@@ -7,7 +7,6 @@ function orderParameterValues = SimulateOrderParameter(nPatterns, nNeurons, nois
     end    
     weights = CalculateWeights(patterns);
 
-    
     initialState = patterns(1,:);
     currentState = initialState;
     
