@@ -1,9 +1,11 @@
-function [ cumOrderParameter ] = CalculateCumOrderParameter ( orderParameter, nbrOfIterations )
+function [ cumOrderParameter ] = CalculateCumOrderParameter ( orderParameter, nbrOfIterations, nbrOfDataPoints )
     
-    cumOrderParameter = zeros(nbrOfIterations,1);
+    smoothedTimeStep = nbrOfIterations/nbrOfDataPoints;
+    cumOrderParameter = zeros(nbrOfDataPoints,1);
     
-    for i=1:nbrOfIterations
-        cumOrderParameter(i) = sum(orderParameter(1:i))/i;
+    
+    for i=smoothedTimeStep:smoothedTimeStep:nbrOfIterations
+        cumOrderParameter(i/smoothedTimeStep) = sum(orderParameter(1:i))/i;
     end
 
 end

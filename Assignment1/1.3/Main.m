@@ -6,7 +6,7 @@ learningRate = 0.02;
 beta = 1/2;
 weightsInitializingInterval = [-2 2];
 biasInitializingInterval = [-1 1];
-nIterations = 10^5;
+nIterations = 10^6;
 nRuns = 3;
 nHiddenNeurons = 4;
 
@@ -62,9 +62,9 @@ for iNumberOfRuns = 1:nRuns
     trainingClassificationErrorOverRuns(iNumberOfRuns) = trainingClassificationError;
     validationClassificationErrorOverRuns(iNumberOfRuns) = validationClassificationError;
     
-    iterations = 1:nIterations;
-    plot(iterations, trainingEnergies, '-');
-    plot(iterations, validationEnergies);
+    iterations = 1:10^3:nbrOfIterations;
+    plot(iterations, trainingEnergies(1:10^3:end));
+    plot(iterations, validationEnergies(1:10^3:end));
     
 end %loop over runs
 
