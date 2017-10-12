@@ -1,2 +1,8 @@
 # Matlab temporary files
 *.m~
+
+# PyCharm
+.idea/
+
+# macOS
+.DS_Store
