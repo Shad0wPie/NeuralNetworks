@@ -10,6 +10,8 @@ name = "pypi"
 numpy = "*"
 pandas = "*"
 ipython = "*"
+scipy = "*"
+matplotlib = "==2.1.0rc1"
 
 
 [requires]
